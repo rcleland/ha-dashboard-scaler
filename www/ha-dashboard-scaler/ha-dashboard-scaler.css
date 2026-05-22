@@ -1,0 +1,19 @@
+:root {
+  --ha-dashboard-scaler-scale-factor: 1;
+  --ha-dashboard-scaler-offset-x: 0px;
+  --ha-dashboard-scaler-offset-y: 0px;
+  --ha-dashboard-scaler-scaled-width: 100vw;
+  --ha-dashboard-scaler-scaled-height: 100vh;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+body.ha-dashboard-scaler-enabled {
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}

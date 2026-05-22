@@ -1,0 +1,10 @@
+{
+  "name": "ha-dashboard-scaler",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Custom Home Assistant dashboard scaling controller for tablet kiosk displays.",
+  "scripts": {
+    "test": "node --test"
+  }
+}

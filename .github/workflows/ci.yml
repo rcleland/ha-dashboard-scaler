@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+  hacs-structure:
+    name: Validate HACS files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate hacs.json exists
+        run: test -f hacs.json
+
+      - name: Validate core project files
+        run: |
+          test -f README.md
+          test -f www/ha-dashboard-scaler/ha-dashboard-scaler.js
+          test -f www/ha-dashboard-scaler/ha-dashboard-scaler.css
+          test -f themes/ha-dashboard-scaler/ha-dashboard-scaler.yaml

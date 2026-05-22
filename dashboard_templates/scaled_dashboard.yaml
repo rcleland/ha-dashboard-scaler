@@ -1,0 +1,22 @@
+title: Tablet Scaled Dashboard
+theme: HA Dashboard Scaler
+views:
+  - title: Main
+    path: main
+    type: sections
+    max_columns: 4
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Tablet Dashboard
+            icon: mdi:tablet-dashboard
+          - type: markdown
+            content: |
+              This dashboard is using the **HA Dashboard Scaler** theme.
+              Add cards through the UI and they will be scaled for this dashboard on kiosk/tablet displays.
+          - type: entities
+            title: Quick Controls
+            entities:
+              - entity: sun.sun
+              - entity: sensor.time
