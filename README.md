@@ -150,14 +150,14 @@ Recommended HACS type: **Dashboard**.
 
 This repository ships `hacs.json` and release automation:
 
-- `zip_release: true`
-- release artifact `ha-dashboard-scaler.zip`
+- HACS installs from repository contents (not zip-release mode)
+- release artifact `ha-dashboard-scaler.zip` remains available for manual installs
 - CI tests + HACS file checks
 
 Release workflow:
 - create a tag like `v1.0.0`
 - push tag to GitHub
-- GitHub Actions publishes `ha-dashboard-scaler.zip` for HACS zip installs
+- GitHub Actions publishes `ha-dashboard-scaler.zip` for optional manual installs
 
 ## Unit Tests
 

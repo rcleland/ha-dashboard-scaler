@@ -1,7 +1,5 @@
 {
   "name": "HA Dashboard Scaler",
   "content_in_root": false,
-  "render_readme": true,
-  "zip_release": true,
-  "filename": "www/ha-dashboard-scaler/ha-dashboard-scaler.js"
+  "render_readme": true
 }
