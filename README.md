@@ -1,49 +1,25 @@
-# HA Dashboard Scaler
+# HA Dashboard Scaler (Minimal Mode)
 
-Custom Home Assistant dashboard scaling for tablet/kiosk screens, including full-frame dashboard views and iframe-heavy pages.
+Minimal Home Assistant dashboard scaling focused on one job:
 
-This project gives you control over:
-- per-dashboard or URL-override activation (not global server-wide)
-- 100% fit to both width and height (`fit-both`)
-- 100% max-height scaling (`fit-height`) and max-width scaling (`fit-width`)
-- custom viewport fill percentages (`scale_x`, `scale_y`) such as 90% width / 100% height
-- per-dashboard design resolution (`--ha-dashboard-scaler-design-width` / `--ha-dashboard-scaler-design-height`)
-- optional non-uniform X/Y scaling for advanced use (`distort=1`)
-- scaling that affects dashboard cards/content (not just the page background)
+- fit dashboard content to **100% viewport height**
+- reduce or eliminate page scrolling on kiosk/tablet screens
+- keep setup simple and predictable
 
-## Repository Layout
+## What Minimal Mode Does
 
-- `www/ha-dashboard-scaler/ha-dashboard-scaler.js` - runtime controller that applies dashboard scaling
-- `www/ha-dashboard-scaler/scale-math.js` - reusable scale math
-- `www/ha-dashboard-scaler/ha-dashboard-scaler.css` - base kiosk/layout CSS
-- `themes/ha-dashboard-scaler/ha-dashboard-scaler.yaml` - theme variables and defaults
-- `dashboard_templates/scaled_dashboard.yaml` - starter dashboard template
-- `tests/scale-math.test.mjs` - unit tests for scale logic
-- `hacs.json` - HACS metadata
+- Uses a single scaling behavior (fit-height).
+- Scales cards/content, not just background styles.
+- Works per dashboard/theme, or by URL override.
 
-## Enablement Model (Per Dashboard + URL Override)
+## Installation
 
-Scaling is active when **either** condition is true:
+### HACS (recommended)
 
-1. Dashboard uses theme variables with `ha-dashboard-scaler-enabled: "1"` (per-dashboard layout/theme pattern), or
-2. URL enables scaling via `?ha_css=1` or scaling parameters (`?scale_x=...&scale_y=...`).
-
-Scaling is disabled if URL includes `?ha_css=0`.
-
-## Installation and Setup
-
-Use one of these install paths:
-
-- **HACS (recommended):** install package from custom repository and use `/hacsfiles/...` resources.
-- **Manual/local:** copy files to `/config` and use `/local/...` resources.
-
-### Option A: HACS install (recommended)
-
-1. In HACS, open **Custom repositories**.
-2. Add repository URL: `https://github.com/rcleland/ha-dashboard-scaler`.
-3. Choose category **Dashboard**.
-4. Install `ha-dashboard-scaler`.
-5. Add Lovelace resources in YAML (`configuration.yaml`):
+1. Add custom repository: `https://github.com/rcleland/ha-dashboard-scaler`
+2. Category: **Dashboard**
+3. Install in HACS.
+4. Add resources in `configuration.yaml`:
 
 ```yaml
 lovelace:
@@ -54,19 +30,16 @@ lovelace:
       type: css
 ```
 
-Compatibility note: these root-level HACS files load the runtime files under `www/ha-dashboard-scaler/`, so legacy nested paths continue to work too.
+### Manual
 
-### Option B: Manual/local install
+Copy:
 
-1. Copy files:
-   - `www/ha-dashboard-scaler/*` -> `/config/www/ha-dashboard-scaler/*`
-   - `themes/ha-dashboard-scaler/ha-dashboard-scaler.yaml` -> `/config/themes/ha-dashboard-scaler/ha-dashboard-scaler.yaml`
-2. Enable themes and resources in `configuration.yaml`:
+- `www/ha-dashboard-scaler/*` -> `/config/www/ha-dashboard-scaler/*`
+- `themes/ha-dashboard-scaler/ha-dashboard-scaler.yaml` -> `/config/themes/ha-dashboard-scaler/ha-dashboard-scaler.yaml`
+
+Add resources:
 
 ```yaml
-frontend:
-  themes: !include_dir_merge_named themes
-
 lovelace:
   resources:
     - url: /local/ha-dashboard-scaler/ha-dashboard-scaler.js
@@ -75,123 +48,54 @@ lovelace:
       type: css
 ```
 
-### Finalize setup (both paths)
-
-1. Restart Home Assistant.
-2. Ensure theme loading is enabled in `configuration.yaml`:
+Enable themes:
 
 ```yaml
 frontend:
   themes: !include_dir_merge_named themes
 ```
 
-3. Apply theme `HA Dashboard Scaler` to your user/profile (or dashboard).
-4. Create a dashboard from `dashboard_templates/scaled_dashboard.yaml`, then continue editing in UI.
+Restart Home Assistant after changes.
 
-## Theme Variables
+## Configuration
 
-Theme defaults in `themes/ha-dashboard-scaler/ha-dashboard-scaler.yaml`:
+Theme defaults (`themes/ha-dashboard-scaler/ha-dashboard-scaler.yaml`):
 
-- `ha-dashboard-scaler-enabled`: `"1"` or `"0"`
-- `ha-dashboard-scaler-design-width`: design width (default `1280`)
-- `ha-dashboard-scaler-design-height`: design height (default `800`)
-- `ha-dashboard-scaler-scale-mode`:
-  - `fit-both` -> keep entire dashboard visible in both dimensions
-  - `fit-height` -> scale by height
-  - `fit-width` -> scale by width
-- `ha-dashboard-scaler-fill-percent-x`: width target percent of viewport (`100` default, `90` gives side padding)
-- `ha-dashboard-scaler-fill-percent-y`: height target percent of viewport (`100` default)
-- `ha-dashboard-scaler-allow-upscale`: `"1"` or `"0"`
-- `ha-dashboard-scaler-allow-distortion`: `"1"` or `"0"` (independent X/Y card scaling)
-- `ha-dashboard-scaler-center-x`: `"1"` or `"0"`
-- `ha-dashboard-scaler-center-y`: `"1"` or `"0"`
+- `ha-dashboard-scaler-enabled`: `"1"` enable scaler
+- `ha-dashboard-scaler-design-width`: design width reference
+- `ha-dashboard-scaler-design-height`: design height reference
+- `ha-dashboard-scaler-allow-upscale`: `"1"` allow growing above 100%
+- `ha-dashboard-scaler-center-x`: `"1"` horizontally center scaled dashboard
 
-Example per-dashboard layout:
+Example:
 
 ```yaml
 HA Dashboard Scaler:
   ha-dashboard-scaler-enabled: "1"
-  ha-dashboard-scaler-design-width: "1600"
-  ha-dashboard-scaler-design-height: "1000"
-  ha-dashboard-scaler-scale-mode: "fit-both"
-  ha-dashboard-scaler-fill-percent-x: "90"
-  ha-dashboard-scaler-fill-percent-y: "100"
+  ha-dashboard-scaler-design-width: "1280"
+  ha-dashboard-scaler-design-height: "800"
   ha-dashboard-scaler-allow-upscale: "1"
-  ha-dashboard-scaler-allow-distortion: "0"
+  ha-dashboard-scaler-center-x: "1"
 ```
 
 ## URL Overrides
 
-Canonical URL parameters:
+- `?ha_css=1` force enable
+- `?ha_css=0` force disable
+- `?design_width=1280&design_height=800` override design size
+- `?allow_upscale=0` cap scale at 100%
+- `?center_x=0` disable horizontal centering
 
-- `ha_css=1|0` -> force enable/disable
-- `fit=fit-both|fit-height|fit-width`
-- `scale_x=<percent>` -> viewport width fill target (e.g. `90`)
-- `scale_y=<percent>` -> viewport height fill target (e.g. `100`)
-- `design_width=<number>`
-- `design_height=<number>`
-- `allow_upscale=1|0`
-- `distort=1|0` -> allow non-uniform axis scaling
-- `center_x=1|0`
-- `center_y=1|0`
+Quick test for vertical fit:
 
-Legacy compatibility is also supported:
+- `?ha_css=1`
 
-- `scalingmode=x,100` -> interpreted as variable width + fixed 100% height behavior
-- `scalingmode=90,100` -> interpreted as 90% width / 100% height target
+## Notes
 
-Examples:
-
-- `?ha_css=1&fit=fit-both&scale_x=90&scale_y=100`
-- `?ha_css=1&fit=fit-height&scale_y=100`
-- `?ha_css=1&fit=fit-both&scale_x=100&scale_y=100&distort=1`
-
-## HACS and Release Notes
-
-Recommended HACS type: **Dashboard**.
-
-This repository ships `hacs.json` and release automation:
-
-- HACS installs from repository contents (not zip-release mode)
-- release artifact `ha-dashboard-scaler.zip` remains available for manual installs
-- CI tests + HACS file checks
-
-Release workflow:
-- create a tag like `v1.0.0`
-- push tag to GitHub
-- GitHub Actions publishes `ha-dashboard-scaler.zip` for optional manual installs
-
-## Unit Tests
-
-From the repo root:
-
-```bash
-npm test
-```
-
-Current tests verify:
-- fit-both scaling behavior
-- fit-height capped behavior
-- fit-width behavior
-- fill percentage padding behavior
-- distortion mode behavior
-- invalid config fallback safety
-
-## Security and Hardening Notes
-
-- No external network requests are made by scaling code.
-- No use of `eval`, dynamic script injection, or token handling.
-- No credentials are stored by this project.
-- Scope is limited to layout transforms and CSS variables inside the dashboard runtime.
-- Use HTTPS + local trusted network policies for kiosk tablets.
-- URL parameters are validated and normalized to safe numeric/boolean values.
-
-## Known Constraints
-
-- Home Assistant frontend internals can change; selector traversal may need updates after major frontend releases.
-- If a specific custom card manages its own internal scrolling, that card may still scroll internally.
-- For best kiosk behavior, hide sidebar/header with your preferred kiosk setup and keep browser in full-screen mode.
+- Best results on full-screen dashboards (kiosk mode/sidebar hidden).
+- If a specific custom card has internal scrolling, that card may still scroll internally.
+- If Home Assistant frontend internals change, selectors may need updates.
 
 ## AI Attribution
 
-This project contains code generated and refined with AI agent assistance. Review changes before production use, and keep normal source control/testing practices in place.
+This project contains code generated and refined with AI agent assistance. Review changes before production use.

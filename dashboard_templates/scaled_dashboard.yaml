@@ -14,7 +14,7 @@ views:
           - type: markdown
             content: |
               This dashboard is using the **HA Dashboard Scaler** theme.
-              Add cards through the UI and they will be scaled for this dashboard on kiosk/tablet displays.
+              Minimal mode scales to fit height for kiosk/tablet displays.
           - type: entities
             title: Quick Controls
             entities:

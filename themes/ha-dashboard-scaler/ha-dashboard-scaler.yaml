@@ -1,23 +1,14 @@
 HA Dashboard Scaler:
-  # Toggle controller for this dashboard/theme only
+  # Toggle minimal fit-height scaler for this dashboard/theme
   ha-dashboard-scaler-enabled: "1"
 
-  # Target resolution (your dashboard design size)
+  # Dashboard design resolution (used as fit-height baseline)
   ha-dashboard-scaler-design-width: "1280"
   ha-dashboard-scaler-design-height: "800"
 
-  # Modes: fit-both (default), fit-height, fit-width
-  ha-dashboard-scaler-scale-mode: "fit-both"
-
-  # Percentage of viewport reserved for scaled cards (90 = 5% padding on each side)
-  ha-dashboard-scaler-fill-percent-x: "100"
-  ha-dashboard-scaler-fill-percent-y: "100"
-
-  # Optional behavior toggles
+  # Minimal options
   ha-dashboard-scaler-allow-upscale: "1"
-  ha-dashboard-scaler-allow-distortion: "0"
   ha-dashboard-scaler-center-x: "1"
-  ha-dashboard-scaler-center-y: "1"
 
   # Basic colors you can customize
   primary-background-color: "#0b111b"
