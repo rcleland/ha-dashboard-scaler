@@ -5,6 +5,22 @@ const ENABLE_MODES = Object.freeze({
   OFF: "0",
   ON: "1",
 });
+const SCROLL_LOCK_SELECTORS = Object.freeze([
+  "home-assistant",
+  "home-assistant-main",
+  "ha-panel-lovelace",
+  "partial-panel-resolver",
+  "hui-root",
+  "ha-app-layout",
+  "app-drawer-layout",
+  "main",
+]);
+const VIEW_SELECTORS = Object.freeze([
+  "#view",
+  "hui-view",
+  ".view",
+]);
+let activeScaledView = null;
 
 function cssVariable(name, fallback = "") {
   const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -47,6 +63,29 @@ function deepQuerySelector(root, selector) {
   }
 
   return null;
+}
+
+function deepQuerySelectorAll(root, selector, results = []) {
+  if (!root) {
+    return results;
+  }
+
+  if (root.querySelectorAll) {
+    const matches = root.querySelectorAll(selector);
+    for (const match of matches) {
+      results.push(match);
+    }
+  }
+
+  const children = root.children ? Array.from(root.children) : [];
+  for (const child of children) {
+    if (child.shadowRoot) {
+      deepQuerySelectorAll(child.shadowRoot, selector, results);
+    }
+    deepQuerySelectorAll(child, selector, results);
+  }
+
+  return results;
 }
 
 function readConfig() {
@@ -216,56 +255,98 @@ function setRootMetrics(metrics) {
 }
 
 function resolveScaledView() {
-  const selectors = [
-    "hui-view",
-    "#view",
-    ".view",
-  ];
-
-  for (const selector of selectors) {
-    const match = deepQuerySelector(document, selector);
-    if (match) {
-      return match;
+  for (const selector of VIEW_SELECTORS) {
+    const matches = deepQuerySelectorAll(document, selector, []);
+    for (const match of matches) {
+      const rect = match.getBoundingClientRect ? match.getBoundingClientRect() : { width: 0, height: 0 };
+      if (rect.width > 0 || rect.height > 0) {
+        return match;
+      }
     }
   }
-
   return null;
+}
+
+function lockScrolling() {
+  document.documentElement.style.overflow = "hidden";
+  document.documentElement.style.height = "100%";
+  document.body.style.overflow = "hidden";
+  document.body.style.height = "100%";
+  document.body.style.margin = "0";
+  document.body.classList.add("ha-dashboard-scaler-enabled");
+
+  for (const selector of SCROLL_LOCK_SELECTORS) {
+    const node = deepQuerySelector(document, selector);
+    if (node && node.style) {
+      node.style.overflow = "hidden";
+      node.style.maxHeight = "100vh";
+    }
+  }
 }
 
 function applyScaledLayout(metrics) {
   const scaledView = resolveScaledView();
   if (!scaledView) {
+    window.console.warn("[ha-dashboard-scaler] could not locate Lovelace view container.");
     return;
   }
 
-  document.documentElement.style.overflow = "hidden";
-  document.body.style.overflow = "hidden";
-  document.body.style.margin = "0";
-  document.body.classList.add("ha-dashboard-scaler-enabled");
+  activeScaledView = scaledView;
+  lockScrolling();
   document.body.dataset.haDashboardScalerMode = metrics.mode;
 
   scaledView.style.width = `${metrics.designWidth}px`;
   scaledView.style.height = `${metrics.designHeight}px`;
   scaledView.style.maxWidth = "none";
   scaledView.style.maxHeight = "none";
+  scaledView.style.position = "absolute";
+  scaledView.style.left = "0";
+  scaledView.style.top = "0";
   scaledView.style.transformOrigin = "top left";
   scaledView.style.transform = `translate(${metrics.offsetX}px, ${metrics.offsetY}px) scale(${metrics.scaleX}, ${metrics.scaleY})`;
   scaledView.style.overflow = "hidden";
+
+  if (scaledView.parentElement && scaledView.parentElement.style) {
+    scaledView.parentElement.style.position = "relative";
+    scaledView.parentElement.style.overflow = "hidden";
+    scaledView.parentElement.style.height = "100vh";
+  }
 }
 
 function clearScaledLayout() {
-  const scaledView = resolveScaledView();
+  const scaledView = activeScaledView ?? resolveScaledView();
   if (scaledView) {
     scaledView.style.removeProperty("width");
     scaledView.style.removeProperty("height");
     scaledView.style.removeProperty("max-width");
     scaledView.style.removeProperty("max-height");
+    scaledView.style.removeProperty("position");
+    scaledView.style.removeProperty("left");
+    scaledView.style.removeProperty("top");
     scaledView.style.removeProperty("transform-origin");
     scaledView.style.removeProperty("transform");
     scaledView.style.removeProperty("overflow");
+    if (scaledView.parentElement && scaledView.parentElement.style) {
+      scaledView.parentElement.style.removeProperty("position");
+      scaledView.parentElement.style.removeProperty("overflow");
+      scaledView.parentElement.style.removeProperty("height");
+    }
   }
   document.body.classList.remove("ha-dashboard-scaler-enabled");
   delete document.body.dataset.haDashboardScalerMode;
+  document.documentElement.style.removeProperty("overflow");
+  document.documentElement.style.removeProperty("height");
+  document.body.style.removeProperty("overflow");
+  document.body.style.removeProperty("height");
+  document.body.style.removeProperty("margin");
+  for (const selector of SCROLL_LOCK_SELECTORS) {
+    const node = deepQuerySelector(document, selector);
+    if (node && node.style) {
+      node.style.removeProperty("overflow");
+      node.style.removeProperty("max-height");
+    }
+  }
+  activeScaledView = null;
 }
 
 function refreshScale() {

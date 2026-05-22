@@ -48,11 +48,13 @@ Use one of these install paths:
 ```yaml
 lovelace:
   resources:
-    - url: /hacsfiles/ha-dashboard-scaler/www/ha-dashboard-scaler/ha-dashboard-scaler.js
+    - url: /hacsfiles/ha-dashboard-scaler/ha-dashboard-scaler.js
       type: module
-    - url: /hacsfiles/ha-dashboard-scaler/www/ha-dashboard-scaler/ha-dashboard-scaler.css
+    - url: /hacsfiles/ha-dashboard-scaler/ha-dashboard-scaler.css
       type: css
 ```
+
+Compatibility note: these root-level HACS files load the runtime files under `www/ha-dashboard-scaler/`, so legacy nested paths continue to work too.
 
 ### Option B: Manual/local install
 
