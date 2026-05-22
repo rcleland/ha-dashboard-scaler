@@ -30,41 +30,61 @@ Scaling is active when **either** condition is true:
 
 Scaling is disabled if URL includes `?ha_css=0`.
 
-## Installation (Home Assistant OS / Supervised)
+## Installation and Setup
 
-### 1) Copy files to your HA config
+Use one of these install paths:
 
-Copy this repo content into your Home Assistant config directory:
+- **HACS (recommended):** install package from custom repository and use `/hacsfiles/...` resources.
+- **Manual/local:** copy files to `/config` and use `/local/...` resources.
 
-- `www/ha-dashboard-scaler/*` -> `/config/www/ha-dashboard-scaler/*`
-- `themes/ha-dashboard-scaler/ha-dashboard-scaler.yaml` -> `/config/themes/ha-dashboard-scaler/ha-dashboard-scaler.yaml`
+### Option A: HACS install (recommended)
 
-### 2) Enable themes in `configuration.yaml`
+1. In HACS, open **Custom repositories**.
+2. Add repository URL: `https://github.com/rcleland/ha-dashboard-scaler`.
+3. Choose category **Dashboard**.
+4. Install `ha-dashboard-scaler`.
+5. Add Lovelace resources in YAML (`configuration.yaml`):
+
+```yaml
+lovelace:
+  resources:
+    - url: /hacsfiles/ha-dashboard-scaler/www/ha-dashboard-scaler/ha-dashboard-scaler.js
+      type: module
+    - url: /hacsfiles/ha-dashboard-scaler/www/ha-dashboard-scaler/ha-dashboard-scaler.css
+      type: css
+```
+
+### Option B: Manual/local install
+
+1. Copy files:
+   - `www/ha-dashboard-scaler/*` -> `/config/www/ha-dashboard-scaler/*`
+   - `themes/ha-dashboard-scaler/ha-dashboard-scaler.yaml` -> `/config/themes/ha-dashboard-scaler/ha-dashboard-scaler.yaml`
+2. Enable themes and resources in `configuration.yaml`:
+
+```yaml
+frontend:
+  themes: !include_dir_merge_named themes
+
+lovelace:
+  resources:
+    - url: /local/ha-dashboard-scaler/ha-dashboard-scaler.js
+      type: module
+    - url: /local/ha-dashboard-scaler/ha-dashboard-scaler.css
+      type: css
+```
+
+### Finalize setup (both paths)
+
+1. Restart Home Assistant.
+2. Ensure theme loading is enabled in `configuration.yaml`:
 
 ```yaml
 frontend:
   themes: !include_dir_merge_named themes
 ```
 
-Restart Home Assistant.
-
-### 3) Register Lovelace resources
-
-Go to **Settings -> Dashboards -> Resources** and add:
-
-- URL: `/local/ha-dashboard-scaler/ha-dashboard-scaler.js`  
-  Type: `JavaScript Module`
-- URL: `/local/ha-dashboard-scaler/ha-dashboard-scaler.css`  
-  Type: `Stylesheet`
-
-### 4) Select the theme
-
-Apply the `HA Dashboard Scaler` theme to your user profile (or the dashboard).
-
-### 5) Create a dashboard from template
-
-Create a new YAML dashboard and start from `dashboard_templates/scaled_dashboard.yaml`.
-Then continue adding cards in the Home Assistant UI as normal.
+3. Apply theme `HA Dashboard Scaler` to your user/profile (or dashboard).
+4. Create a dashboard from `dashboard_templates/scaled_dashboard.yaml`, then continue editing in UI.
 
 ## Theme Variables
 
@@ -124,26 +144,15 @@ Examples:
 - `?ha_css=1&fit=fit-height&scale_y=100`
 - `?ha_css=1&fit=fit-both&scale_x=100&scale_y=100&distort=1`
 
-## HACS Best-Practice Setup
+## HACS and Release Notes
 
-Recommended HACS type: **Frontend Plugin**.
+Recommended HACS type: **Dashboard**.
 
 This repository ships `hacs.json` and release automation:
 
 - `zip_release: true`
 - release artifact `ha-dashboard-scaler.zip`
 - CI tests + HACS file checks
-
-To use with HACS custom repositories:
-
-1. In HACS, open **Custom repositories**.
-2. Add your GitHub repo URL.
-3. Choose **Frontend Plugin**.
-4. Install from HACS.
-5. Register resources (for HACS installs, URL will typically be under `/hacsfiles/...`), for example:
-   - `/hacsfiles/ha-dashboard-scaler/www/ha-dashboard-scaler/ha-dashboard-scaler.js` (`JavaScript Module`)
-   - `/hacsfiles/ha-dashboard-scaler/www/ha-dashboard-scaler/ha-dashboard-scaler.css` (`Stylesheet`)
-6. Apply `HA Dashboard Scaler` theme.
 
 Release workflow:
 - create a tag like `v1.0.0`
