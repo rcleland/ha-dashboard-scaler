@@ -16,6 +16,10 @@ const SCROLL_LOCK_SELECTORS = Object.freeze([
   "main",
 ]);
 const VIEW_SELECTORS = Object.freeze([
+  "hui-sections-view",
+  "hui-masonry-view",
+  "hui-panel-view",
+  "hui-sidebar-view",
   "#view",
   "hui-view",
   ".view",
@@ -311,6 +315,15 @@ function applyScaledLayout(metrics) {
     scaledView.parentElement.style.overflow = "hidden";
     scaledView.parentElement.style.height = "100vh";
   }
+
+  window.console.info("[ha-dashboard-scaler] scaling applied", {
+    viewTag: scaledView.tagName,
+    mode: metrics.mode,
+    scaleX: metrics.scaleX,
+    scaleY: metrics.scaleY,
+    offsetX: metrics.offsetX,
+    offsetY: metrics.offsetY,
+  });
 }
 
 function clearScaledLayout() {
